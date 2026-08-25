@@ -1,0 +1,16 @@
+name: Daily Word Push
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs every day at 00:00 UTC (09:00 Japan Standard Time).
+    - cron: '0 0 * * *'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: |
+          echo "Daily word push workflow is ready."
+          echo "Push provider integration will be enabled after repository secrets are configured."
