@@ -6,32 +6,40 @@
   <meta name="theme-color" content="#5f57e8" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <title>每日单词训练</title>
-  <style>
-    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#f6f7ff,#eef8ff);color:#20253a;min-height:100vh}.app{width:min(920px,92%);margin:0 auto;padding:32px 0 48px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}h1{margin:0;font-size:clamp(28px,6vw,44px)}.sub{color:#697087;margin-top:6px}.streak{background:#fff;padding:10px 14px;border-radius:16px;box-shadow:0 8px 24px #28365a12;white-space:nowrap}.card{background:#fff;border-radius:24px;padding:26px;box-shadow:0 14px 40px #28365a16;margin-bottom:20px}.topline{display:flex;justify-content:space-between;color:#697087;font-size:14px;margin-bottom:14px}.progress{height:9px;background:#edf0f7;border-radius:99px;overflow:hidden;margin-bottom:26px}.progress span{display:block;height:100%;background:linear-gradient(90deg,#6c63ff,#45b7ff);width:0%;transition:.25s}.word{text-align:center;font-size:52px;font-weight:800;letter-spacing:.5px;margin:18px 0 4px}.phonetic{text-align:center;color:#737b90;margin-bottom:20px}.meaning{text-align:center;min-height:30px;font-size:20px;font-weight:650}.hint{text-align:center;color:#8b92a4;min-height:24px;margin-top:8px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}button{border:0;cursor:pointer;font:inherit}.choice{background:#f5f6fb;border:2px solid transparent;padding:15px;border-radius:14px;transition:.15s}.choice:hover{transform:translateY(-1px);background:#eef0ff}.choice.correct{border-color:#45b97c;background:#ebfbf2}.choice.wrong{border-color:#e56b6f;background:#fff0f0}.actions{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}.primary,.secondary{padding:12px 20px;border-radius:13px;font-weight:700}.primary{color:white;background:#5f57e8}.secondary{color:#41475d;background:#eef0f7}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:#f7f8fc;border-radius:16px;padding:16px;text-align:center}.stat b{display:block;font-size:26px}.stat small{color:#7b8294}.hidden{display:none!important}.result{text-align:center}.result h2{font-size:32px;margin:8px 0}.score{font-size:56px;font-weight:850;margin:8px}.settings{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.settings p{margin:4px 0;color:#697087}.time{padding:10px 12px;border:1px solid #e1e4ee;border-radius:12px;background:#fff}.status{font-size:14px;color:#697087;margin-top:10px}@media(max-width:600px){.choices{grid-template-columns:1fr}header{align-items:flex-start}.streak{font-size:13px}.word{font-size:42px}.card{padding:20px}}
-  </style>
 </head>
 <body>
-<main class="app">
-<header><div><h1>📚 每日单词训练</h1><div class="sub" id="dateText"></div></div><div class="streak">🔥 连续 <b id="streak">0</b> 天</div></header>
-<section class="card" id="trainingCard"><div class="topline"><span id="counter">第 1 / 10 题</span><span id="accuracy">正确率 0%</span></div><div class="progress"><span id="progressBar"></span></div><div class="word" id="word">abandon</div><div class="phonetic" id="phonetic">/əˈbændən/</div><div class="meaning" id="meaning"></div><div class="hint" id="hint">选择你认为正确的中文释义</div><div class="choices" id="choices"></div><div class="actions"><button class="secondary" id="showBtn">👀 显示答案</button><button class="primary hidden" id="nextBtn">下一题 →</button></div></section>
-<section class="card hidden result" id="resultCard"><div style="font-size:48px">🎉</div><h2>今日训练完成！</h2><div class="score" id="score">0 / 10</div><p id="resultText">坚持每天练习，词汇量会慢慢涨起来！</p><button class="primary" id="restartBtn">再练一次</button></section>
-<section class="card"><div class="settings"><div><b>🔔 每日提醒</b><p>允许通知后，设置你喜欢的提醒时间。</p></div><div><input class="time" id="reminderTime" type="time" value="08:00"><button class="primary" id="enableBtn">开启提醒</button></div></div><div class="status" id="notifyStatus">提醒尚未开启</div></section>
-<section class="stats"><div class="stat"><b id="totalToday">0</b><small>今日完成</small></div><div class="stat"><b id="bestScore">0</b><small>最高分</small></div><div class="stat"><b id="totalCorrect">0</b><small>累计答对</small></div></section>
-</main>
-<script>
-const WORDS=[
-{word:'abandon',phonetic:'/əˈbændən/',meaning:'放弃；遗弃'},{word:'accurate',phonetic:'/ˈækjərət/',meaning:'准确的'},{word:'achieve',phonetic:'/əˈtʃiːv/',meaning:'实现；达到'},{word:'curious',phonetic:'/ˈkjʊəriəs/',meaning:'好奇的'},{word:'delicate',phonetic:'/ˈdelɪkət/',meaning:'精致的；脆弱的'},{word:'essential',phonetic:'/ɪˈsenʃəl/',meaning:'必不可少的'},{word:'generous',phonetic:'/ˈdʒenərəs/',meaning:'慷慨的'},{word:'improve',phonetic:'/ɪmˈpruːv/',meaning:'改善；提高'},{word:'ordinary',phonetic:'/ˈɔːrdəneri/',meaning:'普通的'},{word:'precious',phonetic:'/ˈpreʃəs/',meaning:'珍贵的'},{word:'reliable',phonetic:'/rɪˈlaɪəbəl/',meaning:'可靠的'},{word:'struggle',phonetic:'/ˈstrʌɡəl/',meaning:'奋斗；挣扎'},{word:'temporary',phonetic:'/ˈtempəreri/',meaning:'暂时的'},{word:'valuable',phonetic:'/ˈvæljuəbəl/',meaning:'有价值的'},{word:'wonder',phonetic:'/ˈwʌndər/',meaning:'想知道；奇迹'}];
-const state={index:0,correct:0,answered:false,questions:[]};const $=id=>document.getElementById(id);const todayKey=()=>new Date().toISOString().slice(0,10);const saved=JSON.parse(localStorage.getItem('wordTrainer')||'{}');
-$('dateText').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'});$('streak').textContent=saved.streak||0;$('bestScore').textContent=saved.best||0;$('totalCorrect').textContent=saved.totalCorrect||0;$('totalToday').textContent=saved.lastDate===todayKey()?(saved.todayDone||0):0;
-function shuffle(a){return [...a].sort(()=>Math.random()-.5)}function start(){state.index=0;state.correct=0;state.answered=false;state.questions=shuffle(WORDS).slice(0,10);$('trainingCard').classList.remove('hidden');$('resultCard').classList.add('hidden');render()}
-function render(){const q=state.questions[state.index];$('counter').textContent=`第 ${state.index+1} / ${state.questions.length} 题`;$('accuracy').textContent=`正确率 ${state.index?Math.round(state.correct/state.index*100):0}%`;$('progressBar').style.width=`${state.index/state.questions.length*100}%`;$('word').textContent=q.word;$('phonetic').textContent=q.phonetic;$('meaning').textContent='';$('hint').textContent='选择你认为正确的中文释义';$('showBtn').classList.remove('hidden');$('nextBtn').classList.add('hidden');state.answered=false;const wrong=shuffle(WORDS.filter(x=>x.word!==q.word)).slice(0,3).map(x=>x.meaning);$('choices').innerHTML=shuffle([q.meaning,...wrong]).map(x=>`<button class="choice">${x}</button>`).join('');[...$('choices').children].forEach(b=>b.onclick=()=>answer(b,q))}
-function answer(btn,q){if(state.answered)return;state.answered=true;const ok=btn.textContent===q.meaning;if(ok){state.correct++;btn.classList.add('correct')}else{btn.classList.add('wrong');[...$('choices').children].find(b=>b.textContent===q.meaning)?.classList.add('correct')}$('meaning').textContent=q.meaning;$('hint').textContent=ok?'✅ 答对啦！':'💡 再记一下这个词';$('showBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');$('accuracy').textContent=`正确率 ${Math.round(state.correct/(state.index+1)*100)}%`}
-function next(){state.index++;if(state.index>=state.questions.length)finish();else render()}function finish(){ $('progressBar').style.width='100%';$('trainingCard').classList.add('hidden');$('resultCard').classList.remove('hidden');$('score').textContent=`${state.correct} / ${state.questions.length}`;const best=Math.max(saved.best||0,state.correct),totalCorrect=(saved.totalCorrect||0)+state.correct,todayDone=(saved.lastDate===todayKey()?(saved.todayDone||0):0)+1;let streak=saved.streak||0;if(saved.lastDate!==todayKey())streak++;Object.assign(saved,{best,totalCorrect,todayDone,lastDate:todayKey(),streak});localStorage.setItem('wordTrainer',JSON.stringify(saved));$('bestScore').textContent=best;$('totalCorrect').textContent=totalCorrect;$('totalToday').textContent=todayDone;$('streak').textContent=streak;$('resultText').textContent=state.correct>=9?'太棒了！今天的单词基本都掌握啦！':state.correct>=7?'很不错！再复习一下错题会更稳。':'完成就是胜利！明天继续，慢慢积累。'}
-$('showBtn').onclick=()=>{const q=state.questions[state.index];$('meaning').textContent=q.meaning;$('hint').textContent='📖 记住它，然后继续下一题';$('showBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');state.answered=true;[...$('choices').children].find(b=>b.textContent===q.meaning)?.classList.add('correct')};$('nextBtn').onclick=next;$('restartBtn').onclick=start;
-let reminderTimer;async function setupNotifications(){if(!('Notification'in window)||!('serviceWorker'in navigator)){ $('notifyStatus').textContent='当前浏览器不支持网页通知。';return }const p=await Notification.requestPermission();if(p!=='granted'){$('notifyStatus').textContent='通知权限未开启，请在浏览器设置中允许此网站通知。';return}const time=$('reminderTime').value;localStorage.setItem('reminderTime',time);$('notifyStatus').textContent=`✅ 已开启 ${time} 提醒（应用保持运行时可自动提醒）`;scheduleLocalReminder();}
-function scheduleLocalReminder(){clearTimeout(reminderTimer);const [h,m]=($('reminderTime').value||'08:00').split(':').map(Number);const now=new Date(),next=new Date();next.setHours(h,m,0,0);if(next<=now)next.setDate(next.getDate()+1);reminderTimer=setTimeout(async()=>{const reg=await navigator.serviceWorker.ready;reg.showNotification('📚 每日单词时间',{body:'今天的 10 个单词还在等你，来练一会儿吧！',tag:'daily-word-reminder',icon:'./icon.svg',badge:'./icon.svg'});scheduleLocalReminder()},next-now)}
-$('reminderTime').value=localStorage.getItem('reminderTime')||'08:00';$('enableBtn').onclick=setupNotifications;$('reminderTime').onchange=()=>{if(Notification.permission==='granted'){localStorage.setItem('reminderTime',$('reminderTime').value);$('notifyStatus').textContent=`✅ 已设置为 ${$('reminderTime').value}`;scheduleLocalReminder()}};
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});if(Notification.permission==='granted'){$('notifyStatus').textContent=`✅ 已允许通知，提醒时间 ${$('reminderTime').value}`;scheduleLocalReminder()}
-start();
-</script>
-</body></html>
+  <main style="max-width:720px;margin:40px auto;font-family:system-ui;padding:20px">
+    <h1>📚 每日单词训练</h1>
+    <p>Push 订阅功能正在接入中。</p>
+    <button id="enable" style="padding:12px 18px;border:0;border-radius:10px;background:#5f57e8;color:#fff;font-size:16px">🔔 开启每日提醒</button>
+    <p id="status"></p>
+  </main>
+  <script>
+    const status = document.getElementById('status');
+    const button = document.getElementById('enable');
+    async function enablePush() {
+      if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+        status.textContent = '当前浏览器不支持 Web Push。';
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        status.textContent = '你还没有允许通知，请在浏览器设置中允许此网站通知。';
+        return;
+      }
+      const registration = await navigator.serviceWorker.ready;
+      const existing = await registration.pushManager.getSubscription();
+      const subscription = existing || await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: undefined
+      });
+      localStorage.setItem('pushSubscription', JSON.stringify(subscription));
+      status.textContent = '✅ 通知权限已开启，Push 订阅已保存到本机。';
+    }
+    button.addEventListener('click', enablePush);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {
+      status.textContent = 'Service Worker 注册失败，请确认使用 HTTPS 打开。';
+    });
+  </script>
+</body>
+</html>
