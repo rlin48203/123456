@@ -6,51 +6,60 @@
   <meta name="theme-color" content="#5f57e8" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <title>每日单词训练</title>
+  <style>
+    body{margin:0;background:#f7f7fb;color:#202124;font-family:system-ui,-apple-system,sans-serif}
+    main{max-width:720px;margin:0 auto;padding:28px 18px 48px}
+    .card{background:#fff;border-radius:20px;padding:22px;box-shadow:0 6px 24px rgba(0,0,0,.08);margin-top:18px}
+    .word{font-size:42px;font-weight:800;margin:8px 0}.ipa{color:#777}.meaning{font-size:20px;margin:12px 0}
+    .example{padding:14px;background:#f1f1f7;border-radius:12px;line-height:1.6}
+    .options{display:grid;gap:10px;margin-top:16px}.option{padding:14px;border:1px solid #ddd;border-radius:12px;background:#fff;text-align:left;font-size:16px}
+    button.primary{padding:12px 18px;border:0;border-radius:12px;background:#5f57e8;color:#fff;font-size:16px}
+    #result{min-height:24px;margin-top:14px;font-weight:700}.progress{color:#666}
+  </style>
 </head>
 <body>
-  <main style="max-width:720px;margin:40px auto;font-family:system-ui;padding:20px">
+  <main>
     <h1>📚 每日单词训练</h1>
-    <p>先开启通知，之后我们再接入每天 09:30 的后台 Push。</p>
-    <button id="enable" style="padding:12px 18px;border:0;border-radius:10px;background:#5f57e8;color:#fff;font-size:16px">🔔 开启每日提醒</button>
-    <p id="status"></p>
+    <p class="progress" id="progress"></p>
+    <section class="card">
+      <div class="word" id="word"></div>
+      <div class="ipa" id="ipa"></div>
+      <div class="meaning" id="meaning"></div>
+      <div class="example" id="example"></div>
+    </section>
+    <section class="card">
+      <h2>🧠 小测验</h2>
+      <p>选择这个单词最合适的中文意思：</p>
+      <div class="options" id="options"></div>
+      <div id="result"></div>
+      <button class="primary" id="next" hidden>下一个 →</button>
+    </section>
+    <section class="card">
+      <h2>🔔 每日提醒</h2>
+      <p>Push 功能正在配置中，完成后会在每天 09:30 提醒你。</p>
+    </section>
   </main>
   <script>
-    const status = document.getElementById('status');
-    const button = document.getElementById('enable');
-    // We intentionally leave this empty until your VAPID public key is generated.
-    const VAPID_PUBLIC_KEY = '';
-    function urlBase64ToUint8Array(base64String) {
-      const padding = '='.repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-      return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-    }
-    async function enablePush() {
-      if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-        status.textContent = '当前浏览器不支持 Web Push。';
-        return;
-      }
-      if (!VAPID_PUBLIC_KEY) {
-        status.textContent = '⏳ Push 正在配置中：还差 VAPID 公钥。';
-        return;
-      }
-      const permission = await Notification.requestPermission();
-      if (permission !== 'granted') {
-        status.textContent = '你还没有允许通知，请在浏览器设置中允许此网站通知。';
-        return;
-      }
-      const registration = await navigator.serviceWorker.ready;
-      const existing = await registration.pushManager.getSubscription();
-      const subscription = existing || await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-      });
-      localStorage.setItem('pushSubscription', JSON.stringify(subscription));
-      status.textContent = '✅ 通知权限已开启，Push 订阅已保存到本机。';
-    }
-    button.addEventListener('click', enablePush);
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {
-      status.textContent = 'Service Worker 注册失败，请确认使用 HTTPS 打开。';
+    const words=[
+      {word:'curious',ipa:'/ˈkjʊəriəs/',meaning:'好奇的',example:'She was curious about how the machine worked.',options:['好奇的','勇敢的','安静的','疲倦的']},
+      {word:'improve',ipa:'/ɪmˈpruːv/',meaning:'改善；提高',example:'Practice can help you improve your English.',options:['忘记','改善；提高','借出','停止']},
+      {word:'discover',ipa:'/dɪˈskʌvə(r)/',meaning:'发现',example:'We discovered a new way to solve the problem.',options:['发现','隐藏','复制','等待']}
+    ];
+    const today=new Date();
+    const index=(today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate())%words.length;
+    const item=words[index];
+    document.getElementById('progress').textContent=`今日第 ${index+1} 组 · 每日一组`;
+    document.getElementById('word').textContent=item.word;
+    document.getElementById('ipa').textContent=item.ipa;
+    document.getElementById('meaning').textContent=item.meaning;
+    document.getElementById('example').textContent=`例句：${item.example}`;
+    const options=document.getElementById('options'),result=document.getElementById('result'),next=document.getElementById('next');
+    [...item.options].sort(()=>Math.random()-.5).forEach(text=>{
+      const b=document.createElement('button'); b.className='option'; b.textContent=text;
+      b.onclick=()=>{ [...options.children].forEach(x=>x.disabled=true); if(text===item.meaning){result.textContent='🎉 答对啦！';}else{result.textContent=`再想想～正确答案是「${item.meaning}」`;} next.hidden=false; };
+      options.appendChild(b);
     });
+    next.onclick=()=>location.reload();
   </script>
 </body>
 </html>
