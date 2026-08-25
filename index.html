@@ -10,16 +10,27 @@
 <body>
   <main style="max-width:720px;margin:40px auto;font-family:system-ui;padding:20px">
     <h1>📚 每日单词训练</h1>
-    <p>Push 订阅功能正在接入中。</p>
+    <p>先开启通知，之后我们再接入每天 09:30 的后台 Push。</p>
     <button id="enable" style="padding:12px 18px;border:0;border-radius:10px;background:#5f57e8;color:#fff;font-size:16px">🔔 开启每日提醒</button>
     <p id="status"></p>
   </main>
   <script>
     const status = document.getElementById('status');
     const button = document.getElementById('enable');
+    // We intentionally leave this empty until your VAPID public key is generated.
+    const VAPID_PUBLIC_KEY = '';
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    }
     async function enablePush() {
       if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
         status.textContent = '当前浏览器不支持 Web Push。';
+        return;
+      }
+      if (!VAPID_PUBLIC_KEY) {
+        status.textContent = '⏳ Push 正在配置中：还差 VAPID 公钥。';
         return;
       }
       const permission = await Notification.requestPermission();
@@ -31,7 +42,7 @@
       const existing = await registration.pushManager.getSubscription();
       const subscription = existing || await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: undefined
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
       });
       localStorage.setItem('pushSubscription', JSON.stringify(subscription));
       status.textContent = '✅ 通知权限已开启，Push 订阅已保存到本机。';
