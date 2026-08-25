@@ -1,0 +1,10 @@
+{
+  "name": "每日单词训练",
+  "short_name": "每日单词",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f7ff",
+  "theme_color": "#5f57e8",
+  "description": "每天练习 10 个英语单词",
+  "icons": []
+}
